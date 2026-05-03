@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Teste Widget — Cangussu Advocacia</title>
+<style>
+  body{font-family:Arial,sans-serif;max-width:800px;margin:40px auto;padding:20px;background:#f5f5f5}
+  h1{color:#6b3fc9}
+  .demo{background:#fff;padding:30px;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.1)}
+  button.cta{padding:14px 28px;background:linear-gradient(135deg,#9d6bff,#6b3fc9);color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:600;cursor:pointer;margin-top:20px}
+  button.cta:hover{filter:brightness(1.1)}
+  code{background:#eee;padding:2px 6px;border-radius:4px;font-size:13px}
+</style>
+</head>
+<body>
+  <div class="demo">
+    <h1>⚖️ Cangussu Advocacia — Demo do Widget</h1>
+    <p>Esta página simula a landing page. O widget aparece no canto inferior direito e também pode ser acionado pelo botão abaixo.</p>
+    <button class="cta" id="btnFalarAdolfo">💬 Falar com Dr. Adolfo</button>
+    <p style="margin-top:30px;color:#666"><strong>Como funciona:</strong></p>
+    <ul style="color:#666;line-height:1.8">
+      <li>A bolha roxa flutuante abre o chat ao clicar</li>
+      <li>O botão acima também abre o chat (via <code>data-trigger="#btnFalarAdolfo"</code>)</li>
+      <li>A IA inicia automaticamente com a saudação OAB (FASE 1)</li>
+      <li>Coleta dados do cliente, gera documentos, agenda reunião</li>
+      <li>Tudo salvo no Supabase em tempo real</li>
+    </ul>
+  </div>
+
+  <!-- Para testar a versão com bolha flutuante (sem trigger), comente a linha abaixo -->
+  <script src="chat-widget.js" data-trigger="#btnFalarAdolfo"></script>
+</body>
+</html>
