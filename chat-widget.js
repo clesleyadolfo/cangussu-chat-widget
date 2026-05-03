@@ -460,19 +460,68 @@
   // ============= Trigger externo (botão da landing) =============
   const script = document.currentScript || document.querySelector('script[src*="chat-widget"]');
   const triggerSel = script && script.dataset.trigger;
-  if (triggerSel) {
-    // Esconde a bolha se o user passou um trigger custom
-    bubble.style.display = 'none';
-    function wireTrigger() {
-      document.querySelectorAll(triggerSel).forEach(btn => {
-        btn.addEventListener('click', e => { e.preventDefault(); open(); });
-      });
+
+  // Texto-padrão para auto-detectar (case insensitive, normalize accents)
+  const AUTO_TEXTS = [
+    'tire suas duvidas',
+    'tire suas dúvidas',
+    'falar com dr',
+    'falar com adolfo',
+    'falar com advogado',
+    'atendimento online',
+    'fale conosco',
+    'iniciar atendimento',
+    'tirar duvida',
+    'tirar dúvida'
+  ];
+
+  function normalize(s) {
+    return (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
+  }
+
+  const wired = new WeakSet();
+  function wireBtn(btn) {
+    if (wired.has(btn)) return;
+    wired.add(btn);
+    btn.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); open(); });
+  }
+
+  function autoDetectAndWire() {
+    let found = 0;
+    // 1) Selector custom (data-trigger)
+    if (triggerSel) {
+      document.querySelectorAll(triggerSel).forEach(b => { wireBtn(b); found++; });
     }
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wireTrigger);
-    else wireTrigger();
-    // Re-tenta para SPAs (React/Lovable)
-    setTimeout(wireTrigger, 1000);
-    setTimeout(wireTrigger, 3000);
+    // 2) Detecção por texto (botões + links)
+    const candidates = document.querySelectorAll('button, a, [role="button"]');
+    candidates.forEach(el => {
+      const txt = normalize(el.textContent);
+      if (!txt) return;
+      if (AUTO_TEXTS.some(t => txt.includes(t))) {
+        wireBtn(el);
+        found++;
+      }
+    });
+    return found;
+  }
+
+  function init() {
+    const found = autoDetectAndWire();
+    // Se encontrou trigger(s), esconde a bolha flutuante
+    if (found > 0) bubble.style.display = 'none';
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+  // Re-tentativas para SPAs que renderizam tarde (React, Lovable, Vite)
+  setTimeout(init, 800);
+  setTimeout(init, 2000);
+  setTimeout(init, 5000);
+
+  // Observer: pega botões que aparecem dinamicamente (scroll, modais, etc.)
+  if (window.MutationObserver) {
+    const mo = new MutationObserver(() => { autoDetectAndWire(); });
+    mo.observe(document.body, { childList: true, subtree: true });
   }
 
   // API pública
