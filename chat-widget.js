@@ -90,22 +90,21 @@
     '',
     'Execução do agendamento Cenário 2 (na ordem):',
     '1. Colete UMA pergunta por vez: nome completo + e-mail/WhatsApp',
-    '2. Aplique TODAS as regras de DISPONIBILIDADE abaixo',
-    '3. Apresente 2-3 OPÇÕES CONCRETAS (NÃO pergunte aberto). Ex: "Tenho estas opções: quarta 30/04 às 15h, sexta 02/05 às 14h, ou segunda 05/05 às 18h. Qual funciona melhor?"',
-    '4. Aguarde escolha. Se pedir fora das regras, recuse com gentileza.',
-    '5. Emita [[AGENDAR:...]]',
-    '6. Vá direto para FASE 7 (não execute Fase 6)',
+    '2. Após coletar TUDO, diga: "Vou conferir a agenda do escritório e te mostrar os horários disponíveis."',
+    '3. EMITA O MARCADOR [[CALENDARIO]] em uma linha separada da resposta. O sistema vai exibir um calendário visual ao cliente para escolher data e hora.',
+    '4. NÃO ofereça opções de data/hora em texto. NÃO emita [[AGENDAR:...]] manualmente — o sistema cuida disso após o cliente clicar.',
+    '5. Após o sistema confirmar o agendamento, prossiga direto para FASE 7 (despedida Cenário 2).',
     '',
-    '## DISPONIBILIDADE PARA REUNIÕES VIRTUAIS',
-    '- Janela: seg-sex 13h00-20h00 (último início 19h15 para caber 45min)',
-    '- NÃO oferecer: sábados, domingos, feriados nacionais/estaduais/municipais, recessos forenses, dias de emenda (ponte entre feriado e fim de semana)',
-    '- Sempre apresente 2-3 opções específicas, nunca pergunte aberto',
-    '- Se cliente pedir fora das regras: recuse com gentileza, explique janela e ofereça novas opções',
+    '## DISPONIBILIDADE (já aplicada pelo sistema no calendário)',
+    '- Janela: seg-sex 13h00-19h15 (último início)',
+    '- Excluídos automaticamente: fins de semana, feriados nacionais e dias de emenda',
     '',
-    '## MARCADOR DE AGENDAMENTO',
-    'Quando cliente confirmar data+horário, emita NA MESMA resposta:',
+    '## MARCADOR DO CALENDÁRIO',
+    'Use APENAS [[CALENDARIO]] para abrir o seletor visual.',
+    '',
+    '## MARCADOR DE AGENDAMENTO MANUAL (apenas se cliente insistir em outro formato):',
     '[[AGENDAR:{"titulo":"Reunião virtual — [nome]","cliente":"[nome]","data":"YYYY-MM-DDTHH:MM","duracao":45,"modalidade":"virtual","whats":"55DDDnumero","email":"[email]"}]]',
-    'Formato: ISO sem timezone. WhatsApp com 55 na frente. NUNCA mencione o marcador ao cliente.',
+    'NUNCA mencione marcadores ao cliente.',
     '',
     'Cenário 1 → FASE 6. Cenário 2 → FASE 7.',
     '',
@@ -175,6 +174,28 @@
     .cgw-cal-buttons h5{margin:0 0 8px;color:#b88bff;font-size:12px;font-weight:600}
     .cgw-cal-buttons a{display:flex;align-items:center;gap:8px;padding:8px 10px;margin:3px 0;background:#0f0f17;border:1px solid #2a2142;border-radius:8px;color:#ece8f5;font-size:12px;text-decoration:none}
     .cgw-cal-buttons a:hover{border-color:#9d6bff}
+    /* Calendário interativo */
+    .cgw-picker{align-self:flex-start;width:97%;padding:12px;background:linear-gradient(135deg,#1a1528,#241935);border:1px solid #9d6bff;border-radius:12px;margin:6px 0}
+    .cgw-picker h5{margin:0 0 4px;color:#b88bff;font-size:13px;font-weight:700}
+    .cgw-picker .cgw-pkr-sub{font-size:11px;color:#8a84a0;margin-bottom:10px}
+    .cgw-pkr-days{display:flex;gap:6px;overflow-x:auto;padding:4px 0 8px;scrollbar-width:thin}
+    .cgw-pkr-days::-webkit-scrollbar{height:4px}
+    .cgw-pkr-days::-webkit-scrollbar-thumb{background:#2a2142;border-radius:2px}
+    .cgw-pkr-day{flex-shrink:0;min-width:54px;padding:8px 4px;background:#0f0f17;border:1px solid #2a2142;border-radius:8px;text-align:center;cursor:pointer;transition:.15s}
+    .cgw-pkr-day:hover{border-color:#9d6bff}
+    .cgw-pkr-day.selected{background:linear-gradient(135deg,#9d6bff,#6b3fc9);border-color:#9d6bff;color:#fff}
+    .cgw-pkr-day .dow{font-size:9px;color:#8a84a0;text-transform:uppercase;letter-spacing:.5px}
+    .cgw-pkr-day.selected .dow{color:#fff;opacity:.85}
+    .cgw-pkr-day .num{font-size:16px;font-weight:700;color:#ece8f5;margin:2px 0}
+    .cgw-pkr-day.selected .num{color:#fff}
+    .cgw-pkr-day .mon{font-size:9px;color:#8a84a0}
+    .cgw-pkr-day.selected .mon{color:#fff;opacity:.85}
+    .cgw-pkr-times{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:8px}
+    .cgw-pkr-time{padding:8px 4px;background:#0f0f17;border:1px solid #2a2142;border-radius:6px;text-align:center;cursor:pointer;font-size:12px;color:#ece8f5;font-weight:600;transition:.15s}
+    .cgw-pkr-time:hover{border-color:#9d6bff;color:#9d6bff}
+    .cgw-pkr-time.selected{background:linear-gradient(135deg,#37d39b,#2db588);border-color:#37d39b;color:#0a3d2c}
+    .cgw-pkr-confirm{margin-top:10px;width:100%;padding:12px;background:linear-gradient(135deg,#37d39b,#2db588);border:none;border-radius:8px;color:#0a3d2c;font-size:13px;font-weight:700;cursor:pointer}
+    .cgw-pkr-confirm:disabled{opacity:.4;cursor:not-allowed;background:#2a2142;color:#8a84a0}
     .cgw-docs{align-self:flex-start;width:95%;padding:12px;background:linear-gradient(135deg,#1a1528,#241935);border:1px solid #9d6bff;border-radius:12px}
     .cgw-docs h4{margin:0 0 8px;color:#b88bff;font-size:13px}
     .cgw-docs button{display:flex;align-items:center;gap:8px;width:100%;padding:8px 10px;margin:3px 0;background:#0f0f17;border:1px solid #2a2142;border-radius:8px;color:#ece8f5;font-size:12px;cursor:pointer;text-align:left;font-family:inherit}
@@ -219,7 +240,7 @@
       '<button class="cgw-icon-btn" id="cgw-attach" title="Enviar foto/documento" aria-label="Anexar">📎</button>' +
       '<button class="cgw-icon-btn" id="cgw-mic" title="Falar (segure para gravar)" aria-label="Microfone">🎤</button>' +
       '<input type="file" id="cgw-file" accept="image/*,application/pdf" style="display:none" capture="environment"/>' +
-      '<input class="cgw-input" id="cgw-input" placeholder="Digite ou fale..." autocomplete="off"/>' +
+      '<input class="cgw-input" id="cgw-input" placeholder="Digite ou fale..." autocomplete="off" autocapitalize="sentences" autocorrect="on" inputmode="text" enterkeyhint="send" name="mensagem" type="text"/>' +
       '<button class="cgw-send" id="cgw-send">Enviar</button>' +
     '</div>' +
     '<div class="cgw-foot">🔒 Conversa protegida — <a href="https://www.oabsp.org.br" target="_blank" rel="noopener">OAB/SP 37.884</a></div>';
@@ -264,55 +285,65 @@
   function gerarDocHTML(tipo, d) {
     const data = dataExtenso();
     const nome = (d.nome||'').toUpperCase();
-    const css = 'body{font-family:Arial,sans-serif;font-size:14px;line-height:1.8;color:#222;max-width:700px;margin:40px auto;padding:20px}h1{text-align:center;font-size:18px;margin-bottom:30px}.assinatura{margin-top:60px;text-align:center}.linha{border-top:1px solid #333;width:350px;margin:0 auto 5px;padding-top:5px}.rodape{text-align:center;margin-top:10px;font-size:12px;color:#888}p{text-align:justify;text-indent:40px}@media print{body{margin:0}}';
+    const css = 'body{font-family:Arial,sans-serif;font-size:11pt;line-height:1.5;color:#000;margin:2.5cm}h1{text-align:center;font-size:13pt;margin-bottom:30pt;text-decoration:underline;font-weight:bold}.linha-dados{margin:8pt 0;line-height:2}.assinatura{margin-top:50pt;text-align:center}.linha{border-top:1px solid #000;width:280pt;margin:0 auto;padding-top:4pt;font-weight:bold;font-size:10pt}p{text-align:justify;margin:8pt 0}@media print{body{margin:0}}';
 
     if (tipo === 'contrato') {
-      return '<html><head><meta charset="UTF-8"><title>Contrato de Honorários</title><style>'+css+'</style></head><body>'
+      return '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Contrato de Honorários</title><style>'+css+'</style></head><body>'
         +'<h1>CONTRATO DE HONORÁRIOS PROFISSIONAIS</h1>'
-        +'<p><strong>CANGUSSU ADVOCACIA E CONSULTORIA JURÍDICA</strong>, CNPJ 44.007.353/0001-99, na Rua São Fidélis - 817, Jardim Paraíso, Araçatuba/SP e <strong>'+nome+'</strong>, '+(d.nacionalidade||'brasileiro(a)')+', '+(d.estado_civil||'')+', '+(d.profissao||'')+', CPF '+(d.cpf||'')+' e RG '+(d.rg||'')+', residente a '+(d.endereco||'')+', CEP '+(d.cep||'')+', '+(d.cidade||'')+'/'+(d.estado||'SP')+'.</p>'
-        +'<p><strong>I -</strong> O contratado obriga-se à propositura e acompanhamento da ação de '+(d.descricao_caso||d.area_direito||'')+'.</p>'
-        +'<p><strong>II -</strong> Prestação de serviços advocatícios judiciais, extrajudiciais e acessória jurídica.</p>'
-        +'<p><strong>III -</strong> Honorários: 30% dos benefícios no êxito da ação, mais as 3 primeiras parcelas em demandas previdenciárias.</p>'
-        +'<p><strong>IV -</strong> Mesmo em revogação ou desistência, o Contratado faz jus aos honorários.</p>'
-        +'<p><strong>V -</strong> Em caso de renúncia justa, o Contratado mantém o exercício até substituição.</p>'
-        +'<p><strong>VI -</strong> Obrigação de meio: empregar todos os meios legais e éticos.</p>'
-        +'<p><strong>VII -</strong> Autoriza levantamento de honorários nos próprios autos e em acordo extrajudicial.</p>'
-        +'<p><strong>VIII -</strong> Negócio processual (art. 190 CPC): inadimplemento autoriza arresto e penhora de até 30% do salário/aposentadoria.</p>'
-        +'<p><strong>IX -</strong> Foro da comarca do contratante.</p>'
-        +'<p style="text-align:center;margin-top:30px">'+data+'</p>'
-        +'<div class="assinatura"><div class="linha">'+nome+'</div></div>'
-        +'<div class="assinatura" style="margin-top:30px"><div class="linha">CANGUSSU ADVOCACIA</div></div>'
-        +'<div class="rodape">Cangussu Advocacia — OAB/SP 37.884</div>'
+        +'<p><strong>CANGUSSU ADVOCACIA</strong>, pessoa jurídica de direito privado, inscrita no CNPJ sob o nº 44.007.353/0001-99, neste ato representada por seu sócio CLESLEY ADOLFO RAMOS CANGUSSU, brasileiro, casado, divorciado, inscrito na OAB/SP sob o nº 412.855 e no CPF sob o nº 266.479.678-00, com endereço profissional na Rua São Fidélis, nº 817, Bairro Amizade, CEP 16.074-275, Araçatuba/SP, e</p>'
+        +'<p class="linha-dados"><strong>NOME:</strong> '+nome+'</p>'
+        +'<p class="linha-dados"><strong>ESTADO CIVIL:</strong> '+(d.estado_civil||'')+' &nbsp;&nbsp; <strong>PROFISSÃO:</strong> '+(d.profissao||'')+'</p>'
+        +'<p class="linha-dados"><strong>RG:</strong> '+(d.rg||'')+' &nbsp;&nbsp; <strong>C.P.F.:</strong> '+(d.cpf||'')+'</p>'
+        +'<p class="linha-dados"><strong>ENDEREÇO:</strong> '+(d.endereco||'')+(d.cep?', CEP '+d.cep:'')+(d.cidade?', '+d.cidade:'')+(d.estado?'/'+d.estado:'')+'</p>'
+        +'<p><strong>I –</strong> Como advogado devidamente habilitado, o contratado obriga-se a propositura\\acompanhamento do processo de '+(d.descricao_caso||d.area_direito||'')+'.</p>'
+        +'<p><strong>II –</strong> O Contratado, por isso tratará de levar a efeito o desejo do contratante, propondo a mesma ação e a acompanhando, com o zelo e a diligência que se fazem mister.</p>'
+        +'<p><strong>III –</strong> O (a) Contratante compromete-se a pagar ao Contratado, a títulos de honorários, a quantia de '+(d.valor_honorarios||'30% (trinta por cento) sobre os benefícios econômicos obtidos no êxito da ação, sendo que, em demandas previdenciárias com benefício concedido administrativamente, os honorários correspondem ao valor dos 3 (três) primeiros benefícios recebidos')+'.</p>'
+        +'<p><strong>IV –</strong> Mesmo em caso de revogação ou desistência, o Contratado faz juz aos honorários aludidos nesta cláusula.</p>'
+        +'<p><strong>V –</strong> No caso de, por justo motivo, ter o segundo Contratado de renunciar ao mandato, deverá manter-se em seu exercício até que possa o contratante substituí-lo, salvo se o próprio renunciante se fizer substituído por outro advogado. Neste caso, o contratado terá direito uma parte proporcional dos honorários, sendo a outra parte devida a seu substituto.</p>'
+        +'<p><strong>VI -</strong> A obrigação do advogado é uma obrigação de meio e não de fim, isso significa que o advogado tem obrigação de empregar todos os meios legais e lícitos, bem como os moralmente legítimos e aceitos para defender os interesses do(a)s CONTRATANTE.</p>'
+        +'<p><strong>VII –</strong> A contratante autoriza desde já que sejam levantados os honorários advocatícios diretamente nos próprios autos, bem como faz jus o contratado aos honorários contratados em caso de acordo extrajudicial.</p>'
+        +'<p><strong>VII-</strong> As partes realizam, neste ato, de livre e espontânea vontade, o seguinte negócio processual, na forma prevista no art. 190 do Código de Processo Civil: caso o CONTRATANTE deixe de cumprir qualquer obrigação de pagar referente à presente contratação, levando o CONTRATADO a ingressar com ação executiva para o recebimento dos valores que lhe são devidos, o CONSTITUINTE autoriza, desde já, a realização de arresto cautelar e de penhora de até 30% do salário/aposentadoria que estiver recebendo, seja por ocupação mantida na iniciativa privada ou mesmo pelo exercício de algum cargo ou função públicos. Por força do presente acordo, o CONTRATANTE abre mão da impenhorabilidade do salário prevista na legislação, até o mencionado limite de 30%.</p>'
+        +'<p style="text-align:right;margin-top:30pt"><strong>DATA:</strong> '+data+'</p>'
+        +'<table style="width:100%;margin-top:60pt;text-align:center"><tr>'
+        +'<td style="width:48%"><div class="linha">CANGUSSU ADVOCACIA</div></td>'
+        +'<td style="width:4%"></td>'
+        +'<td style="width:48%"><div class="linha">CONTRATANTE</div></td>'
+        +'</tr></table>'
         +'</body></html>';
     }
     if (tipo === 'procuracao') {
-      return '<html><head><meta charset="UTF-8"><title>Procuração</title><style>'+css+'</style></head><body>'
+      return '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Procuração</title><style>'+css+'</style></head><body>'
         +'<h1>PROCURAÇÃO AD JUDICIA</h1>'
-        +'<p><strong>OUTORGANTE:</strong> '+nome+', '+(d.nacionalidade||'brasileiro(a)')+', '+(d.estado_civil||'')+', '+(d.profissao||'')+', CPF '+(d.cpf||'')+' e RG '+(d.rg||'')+', residente a '+(d.endereco||'')+', CEP '+(d.cep||'')+', '+(d.cidade||'')+'/'+(d.estado||'SP')+'.</p>'
-        +'<p><strong>OUTORGADO:</strong> CLESLEY ADOLFO RAMOS CANGUSSU, brasileiro, casado, advogado, OAB/SP 412.855, CPF 266.479.678-00, escritório na Rua São Fidélis - 817, Jardim Paraíso, CEP 16.074-275, Araçatuba/SP.</p>'
-        +'<p><strong>PODERES:</strong> amplos poderes para o foro em geral, com cláusula "ad-judicia et extra", em qualquer Juízo, Instância ou Tribunal, podendo propor e defender ações, receber citação, confessar, desistir, transigir, firmar acordos, receber e dar quitação, substabelecer com ou sem reservas.</p>'
-        +'<p style="text-align:center;margin-top:30px">'+data+'</p>'
-        +'<div class="assinatura"><div class="linha">'+nome+'</div></div>'
-        +'<div class="rodape">Cangussu Advocacia — OAB/SP 37.884</div>'
+        +'<p class="linha-dados"><strong>OUTORGANTE:</strong></p>'
+        +'<p class="linha-dados"><strong>NOME:</strong> '+nome+'</p>'
+        +'<p class="linha-dados"><strong>ESTADO CIVIL:</strong> '+(d.estado_civil||'')+' &nbsp;&nbsp; <strong>PROFISSÃO:</strong> '+(d.profissao||'')+'</p>'
+        +'<p class="linha-dados"><strong>RG:</strong> '+(d.rg||'')+' &nbsp;&nbsp; <strong>C.P.F.:</strong> '+(d.cpf||'')+'</p>'
+        +'<p class="linha-dados"><strong>ENDEREÇO:</strong> '+(d.endereco||'')+(d.cep?', CEP '+d.cep:'')+(d.cidade?', '+d.cidade:'')+(d.estado?'/'+d.estado:'')+'</p>'
+        +'<p style="margin-top:20pt"><strong>OUTORGADO:</strong> CANGUSSU SOCIEDADE INDIVIDUAL DE ADVOCACIA, pessoa jurídica de direito privado, inscrita no CNPJ sob o nº 44.007.353/0001-99, neste ato representada por seu sócio CLESLEY ADOLFO RAMOS CANGUSSU, brasileiro, divorciado, advogado, inscrito na OAB/SP sob o nº 412.855 e no CPF sob o nº 266.479.678-00, com endereço profissional na Rua São Fidélis, nº 817, Bairro Amizade, CEP 16.074-275, Araçatuba/SP.</p>'
+        +'<p style="margin-top:20pt"><strong>PODERES:</strong> pelo presente instrumento o outorgante confere ao outorgado amplos poderes para o foro em geral, com cláusula "ad-judicia et extra", em qualquer Juízo, Instância ou Tribunal, podendo propor contra quem de direito, as ações competentes e defendê-lo nas contrárias, seguindo umas e outras, até final decisão, usando os recursos legais e acompanhando-os, conferindo-lhe ainda, poderes especiais para receber citação inicial, confessar, e conhecer a procedência do pedido, desistir, renunciar ao direito, transigir, firmar compromissos ou acordos, receber e dar quitação, podendo agir em Juízo ou fora dele, assim como substabelecer está a outrem, com ou sem reservas de iguais poderes, para agir em conjunto ou separadamente com o substabelecido.</p>'
+        +'<p style="text-align:right;margin-top:30pt"><strong>DATA:</strong> '+data+'</p>'
+        +'<div class="assinatura" style="margin-top:50pt"><div class="linha">ASS. '+nome+'</div></div>'
         +'</body></html>';
     }
     if (tipo === 'hipossuficiencia') {
-      return '<html><head><meta charset="UTF-8"><title>Hipossuficiência</title><style>'+css+'</style></head><body>'
+      return '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Hipossuficiência</title><style>'+css+'</style></head><body>'
         +'<h1>DECLARAÇÃO DE HIPOSSUFICIÊNCIA</h1>'
-        +'<p>'+nome+', '+(d.nacionalidade||'brasileiro(a)')+', '+(d.estado_civil||'')+', '+(d.profissao||'')+', RG '+(d.rg||'')+', CPF '+(d.cpf||'')+', domiciliado(a) na '+(d.endereco||'')+', CEP '+(d.cep||'')+', '+(d.cidade||'Araçatuba')+'/'+(d.estado||'SP')+', declara para os fins do art. 5º LXXIV CF, Lei 1.060/50, art. 1º Lei 7.115/83 e art. 98 e segs CPC, sob as penas da lei, não ter condições financeiras de arcar com custas e despesas processuais sem prejuízo do próprio sustento e família, requerendo o deferimento dos benefícios da <strong>JUSTIÇA GRATUITA</strong>, abrangendo todos os atos do processo.</p>'
-        +'<p style="text-align:center;margin-top:30px">'+data+'</p>'
-        +'<div class="assinatura"><div class="linha">'+nome+'</div></div>'
-        +'<div class="rodape">Cangussu Advocacia — OAB/SP 37.884</div>'
+        +'<p class="linha-dados"><strong>NOME:</strong> '+nome+'</p>'
+        +'<p class="linha-dados"><strong>ESTADO CIVIL:</strong> '+(d.estado_civil||'')+' &nbsp;&nbsp; <strong>PROFISSÃO:</strong> '+(d.profissao||'')+'</p>'
+        +'<p class="linha-dados"><strong>RG:</strong> '+(d.rg||'')+' &nbsp;&nbsp; <strong>C.P.F.:</strong> '+(d.cpf||'')+'</p>'
+        +'<p class="linha-dados"><strong>ENDEREÇO:</strong> '+(d.endereco||'')+(d.cep?', CEP '+d.cep:'')+(d.cidade?', '+d.cidade:'')+(d.estado?'/'+d.estado:'')+'</p>'
+        +'<p style="margin-top:20pt"><strong>declara</strong> para os fins específicos do beneplácito previsto no inciso LXXIV, do artigo 5º da Constituição Federal, c/c a Lei nº 1.060/50, artigo 1º da Lei nº 7.115/83 e nos termos do artigo 98 e seguintes da Lei 13.105/2015 (Código de Processo Civil), sob as penas da lei, não ter condições financeiras de arcar com custas e despesas processuais, sem prejuízo do próprio sustento e de sua família, razão pela qual requer o deferimento da concessão dos benefícios da <strong>JUSTIÇA GRATUITA</strong>. Requerendo, ainda, que o benefício abranja todos os atos do processo.</p>'
+        +'<p style="text-align:right;margin-top:30pt"><strong>DATA:</strong> '+data+'</p>'
+        +'<div class="assinatura" style="margin-top:50pt"><div class="linha">'+nome+'</div></div>'
         +'</body></html>';
     }
     if (tipo === 'declaracao_ir') {
-      return '<html><head><meta charset="UTF-8"><title>Isenção IR</title><style>'+css+'</style></head><body>'
-        +'<h1>DECLARAÇÃO DE ISENÇÃO DO IMPOSTO DE RENDA (IRPF)</h1>'
-        +'<p>Eu, '+nome+', '+(d.nacionalidade||'brasileiro(a)')+', '+(d.estado_civil||'')+', '+(d.profissao||'')+', CPF '+(d.cpf||'')+' e RG '+(d.rg||'')+', residente a '+(d.endereco||'')+', CEP '+(d.cep||'')+', '+(d.cidade||'')+'/'+(d.estado||'SP')+', DECLARO ser isento(a) da apresentação da DIRPF por não incorrer em nenhuma hipótese de obrigatoriedade da Receita Federal.</p>'
-        +'<p>Conforme IN RFB 1548/2015 e Lei 7.115/83. Declaro sob as penas da lei a veracidade das informações.</p>'
-        +'<p style="text-align:center;margin-top:30px">'+data+'</p>'
-        +'<div class="assinatura"><div class="linha">'+nome+'</div></div>'
-        +'<div class="rodape">Cangussu Advocacia — OAB/SP 37.884</div>'
+      return '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Isenção IR</title><style>'+css+'</style></head><body>'
+        +'<h1>DECLARAÇÃO DE ISENÇÃO DO IMPOSTO DE RENDA PESSOA FÍSICA (IRPF)</h1>'
+        +'<p>Eu, <strong>'+nome+'</strong>, brasileiro(a), '+(d.estado_civil||'')+', '+(d.profissao||'')+', CPF '+(d.cpf||'')+' e RG '+(d.rg||'')+', residente a '+(d.endereco||'')+', CEP '+(d.cep||'')+', município de '+(d.cidade||'')+'/'+(d.estado||'SP')+', <strong>DECLARO</strong> ser isento(a) da apresentação da Declaração do Imposto de Renda Pessoa Física (DIRPF) por não incorrer em nenhuma das hipóteses de obrigatoriedade estabelecidas pelas Instruções Normativas (IN) da Receita Federal do Brasil (RFB).</p>'
+        +'<p>Esta declaração está em conformidade com a IN RFB nº 1548/2015 e a Lei nº 7.115/83. Declaro ainda, sob as penas da lei, serem verdadeiras todas as informações acima prestadas.</p>'
+        +'<p style="text-align:right;margin-top:30pt"><strong>DATA:</strong> '+data+'</p>'
+        +'<div class="assinatura" style="margin-top:50pt"><div class="linha">'+nome+'</div></div>'
         +'</body></html>';
     }
     return '';
@@ -419,15 +450,26 @@
         try {
           const result = await criarAssinaturaZapSign(d.tipo, dados);
           if (result.sign_url) {
-            window.open(result.sign_url, '_blank');
-            signBtn.style.background = '#1a1528';
-            signBtn.style.color = '#ece8f5';
-            signBtn.textContent = '✓ Link gerado';
-            // Adiciona link visível
-            const linkInfo = document.createElement('div');
-            linkInfo.style.cssText = 'font-size:10px;color:#8a84a0;margin-top:4px;word-break:break-all';
-            linkInfo.innerHTML = '🔗 <a href="' + result.sign_url + '" target="_blank" style="color:#9d6bff">Abrir link de assinatura</a>';
-            wrap.appendChild(linkInfo);
+            // Substitui a linha do botão pelo LINK CLICÁVEL grande (sem popup-blocker)
+            wrap.innerHTML = '';
+            wrap.style.cssText = 'display:flex;flex-direction:column;gap:6px;margin:6px 0;padding:10px;background:#0f1f17;border:1px solid #37d39b;border-radius:10px';
+            const lbl = document.createElement('div');
+            lbl.style.cssText = 'font-size:12px;color:#37d39b;font-weight:700';
+            lbl.textContent = '✓ ' + d.label + ' — Pronto para assinar';
+            wrap.appendChild(lbl);
+
+            const link = document.createElement('a');
+            link.href = result.sign_url;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            link.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;background:linear-gradient(135deg,#37d39b,#2db588);border:none;border-radius:8px;color:#0a3d2c;font-size:14px;font-weight:700;text-decoration:none;cursor:pointer';
+            link.innerHTML = '✍️ ASSINAR AGORA <span style="font-size:11px;opacity:.7">↗</span>';
+            wrap.appendChild(link);
+
+            const sub = document.createElement('div');
+            sub.style.cssText = 'font-size:10px;color:#8a84a0;text-align:center;word-break:break-all';
+            sub.innerHTML = '🔗 <a href="' + result.sign_url + '" target="_blank" rel="noopener" style="color:#9d6bff;text-decoration:underline">Copiar/abrir link</a> &nbsp;|&nbsp; ID: ' + (result.external_id || result.doc_id || '').slice(0, 16);
+            wrap.appendChild(sub);
           } else {
             throw new Error('Sem sign_url na resposta');
           }
@@ -470,6 +512,16 @@
       }
     }
 
+    // CALENDARIO — picker visual de data/hora
+    const calRe = /\[\[CALENDARIO(?::\s*(\{[\s\S]*?\}))?\s*\]\]/g;
+    const calMatches = [...out.matchAll(calRe)];
+    for (const m of calMatches) {
+      let params = {};
+      try { if (m[1]) params = JSON.parse(m[1]); } catch (_) {}
+      out = out.replace(m[0], '');
+      setTimeout(() => mostrarCalendarioPicker(params), 1500);
+    }
+
     // AGENDAR
     const agRe = /\[\[AGENDAR:\s*(\{[\s\S]*?\})\s*\]\]/g;
     const agMatches = [...out.matchAll(agRe)];
@@ -480,9 +532,9 @@
         const meetLink = 'https://meet.jit.si/CangussuAdvocacia-' + slug + '-' + Date.now();
         const when = new Date(p.data).toLocaleString('pt-BR', { dateStyle: 'full', timeStyle: 'short' });
         salvarReuniao(p, meetLink);
+        notificarAgendamento(p, meetLink); // email pro Dr. Adolfo
         const conf = '\n\n✅ REUNIÃO AGENDADA\n📌 ' + (p.titulo || 'Reunião') + '\n📅 ' + when + '\n⏱ ' + (p.duracao || 45) + ' minutos\n🎥 ' + meetLink;
         out = out.replace(m[0], conf);
-        // Renderiza painel com botões de calendário após split
         setTimeout(() => painelCalendario(p, meetLink), 1500);
       } catch (e) {
         console.error('[cgw] AGENDAR parse error:', e);
@@ -549,6 +601,194 @@
     const icsUrl = URL.createObjectURL(icsBlob);
 
     return { gcal, outlook, icsUrl, meetLink };
+  }
+
+  // ============= 📅 CALENDÁRIO PICKER (cliente escolhe data/hora) =============
+  // Feriados nacionais Brasil 2026 (em formato MM-DD)
+  const FERIADOS_BR = [
+    '01-01','02-16','02-17','02-18','04-03','04-21','05-01','06-04','09-07','10-12','11-02','11-15','12-25'
+  ];
+  function isFeriado(d) {
+    const mmdd = String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    return FERIADOS_BR.includes(mmdd);
+  }
+  function isDiaUtil(d) {
+    const dow = d.getDay();
+    return dow !== 0 && dow !== 6 && !isFeriado(d);
+  }
+  function isDiaEmenda(d) {
+    if (!isDiaUtil(d)) return false;
+    const dow = d.getDay();
+    // Segunda + feriado na terça → emenda
+    if (dow === 1) {
+      const ter = new Date(d); ter.setDate(d.getDate()+1);
+      if (isFeriado(ter)) return true;
+    }
+    // Sexta + feriado na quinta → emenda
+    if (dow === 5) {
+      const qui = new Date(d); qui.setDate(d.getDate()-1);
+      if (isFeriado(qui)) return true;
+    }
+    return false;
+  }
+  function proximosDiasDisponiveis(qtd) {
+    const out = [];
+    const d = new Date();
+    d.setHours(0,0,0,0);
+    let i = 1;
+    while (out.length < qtd && i < 60) {
+      const dia = new Date(d.getTime() + i*86400000);
+      if (isDiaUtil(dia) && !isDiaEmenda(dia)) {
+        out.push(dia);
+      }
+      i++;
+    }
+    return out;
+  }
+  // Slots de 30 minutos das 13:00 às 19:30 (último início 19:15 segundo o fluxo)
+  const SLOTS = ['13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00','18:30','19:00','19:15'];
+
+  const DOW_LABELS = ['DOM','SEG','TER','QUA','QUI','SEX','SÁB'];
+  const MONTH_LABELS = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+
+  function mostrarCalendarioPicker(params) {
+    const dias = proximosDiasDisponiveis(10);
+    const panel = document.createElement('div');
+    panel.className = 'cgw-picker';
+
+    let selectedDay = null;
+    let selectedTime = null;
+
+    panel.innerHTML = '<h5>📅 Escolha a data e hora da sua reunião</h5>'
+      + '<div class="cgw-pkr-sub">Reuniões virtuais — segunda a sexta, das 13h às 19h15</div>'
+      + '<div class="cgw-pkr-days" id="cgw-pkr-days"></div>'
+      + '<div class="cgw-pkr-times" id="cgw-pkr-times" style="display:none"></div>'
+      + '<button class="cgw-pkr-confirm" id="cgw-pkr-confirm" disabled>Selecione data e hora</button>';
+
+    chat.appendChild(panel);
+    chat.scrollTop = chat.scrollHeight;
+
+    const daysEl = panel.querySelector('#cgw-pkr-days');
+    const timesEl = panel.querySelector('#cgw-pkr-times');
+    const confirmEl = panel.querySelector('#cgw-pkr-confirm');
+
+    dias.forEach(d => {
+      const btn = document.createElement('button');
+      btn.className = 'cgw-pkr-day';
+      btn.innerHTML = '<div class="dow">'+DOW_LABELS[d.getDay()]+'</div>'
+        + '<div class="num">'+d.getDate()+'</div>'
+        + '<div class="mon">'+MONTH_LABELS[d.getMonth()]+'</div>';
+      btn.addEventListener('click', () => {
+        daysEl.querySelectorAll('.cgw-pkr-day').forEach(x => x.classList.remove('selected'));
+        btn.classList.add('selected');
+        selectedDay = d;
+        selectedTime = null;
+        timesEl.style.display = 'grid';
+        timesEl.innerHTML = '';
+        SLOTS.forEach(t => {
+          const tb = document.createElement('button');
+          tb.className = 'cgw-pkr-time';
+          tb.textContent = t;
+          tb.addEventListener('click', () => {
+            timesEl.querySelectorAll('.cgw-pkr-time').forEach(x => x.classList.remove('selected'));
+            tb.classList.add('selected');
+            selectedTime = t;
+            confirmEl.disabled = false;
+            confirmEl.textContent = '✓ Confirmar ' + d.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'}) + ' às ' + t;
+          });
+          timesEl.appendChild(tb);
+        });
+        chat.scrollTop = chat.scrollHeight;
+      });
+      daysEl.appendChild(btn);
+    });
+
+    confirmEl.addEventListener('click', async () => {
+      if (!selectedDay || !selectedTime) return;
+      confirmEl.disabled = true;
+      const [hh, mm] = selectedTime.split(':');
+      const dt = new Date(selectedDay);
+      dt.setHours(parseInt(hh), parseInt(mm), 0, 0);
+      const isoLocal = dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0') + '-' + String(dt.getDate()).padStart(2,'0')
+        + 'T' + String(dt.getHours()).padStart(2,'0') + ':' + String(dt.getMinutes()).padStart(2,'0');
+
+      const cliente = window.clienteAtualWidget || {};
+      const nome = params.cliente || cliente.nome || '';
+      const email = params.email || cliente.email || '';
+      const whats = params.whats || cliente.telefone || '';
+
+      // Bloqueia o picker
+      panel.style.opacity = '.6';
+      panel.style.pointerEvents = 'none';
+
+      // Adiciona uma mensagem do cliente ao histórico para a IA continuar
+      const msgUsuario = 'Confirmo o agendamento para ' + dt.toLocaleString('pt-BR',{dateStyle:'full',timeStyle:'short'}) + '.';
+      addBubble(msgUsuario, 'user');
+      history.push({ role: 'user', content: msgUsuario });
+
+      // Cria reunião direto (não espera a IA gerar AGENDAR)
+      const slug = (nome || 'cliente').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]/g,'-');
+      const meetLink = 'https://meet.jit.si/CangussuAdvocacia-' + slug + '-' + Date.now();
+      const reuniao = {
+        titulo: params.titulo || ('Reunião virtual — ' + nome),
+        cliente: nome,
+        data: isoLocal,
+        duracao: 45,
+        modalidade: 'virtual',
+        whats: whats,
+        email: email
+      };
+      try { salvarReuniao(reuniao, meetLink); } catch (_) {}
+      try { notificarAgendamento(reuniao, meetLink); } catch (_) {}
+
+      // Mostra confirmação e botões de calendário
+      const when = dt.toLocaleString('pt-BR',{dateStyle:'full',timeStyle:'short'});
+      addBubble('✅ REUNIÃO AGENDADA\n📌 ' + reuniao.titulo + '\n📅 ' + when + '\n⏱ 45 minutos\n🎥 ' + meetLink, 'bot');
+      setTimeout(() => painelCalendario(reuniao, meetLink), 800);
+
+      // Manda a IA prosseguir (Fase 6 ou 7)
+      sendBtn.disabled = true;
+      await new Promise(r => setTimeout(r, 2000));
+      const typing = addTyping();
+      try {
+        const aiRes = await fetch(ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messages: history.slice(-30),
+            system: SYSTEM_PROMPT + '\n\n[CONTEXTO: Reunião já foi agendada para ' + when + '. Prossiga para a próxima fase do fluxo.]'
+          })
+        });
+        const aiData = await aiRes.json();
+        typing.remove();
+        if (aiData.reply) {
+          history.push({ role: 'assistant', content: aiData.reply });
+          await addSplitBubbles(processMarkers(aiData.reply));
+        }
+      } catch (_) { typing.remove(); }
+      sendBtn.disabled = false;
+    });
+  }
+
+  // ============= 📧 NOTIFICAÇÃO POR EMAIL =============
+  const NOTIFY_ENDPOINT = 'https://kxvtftxjwnosqvbqxudd.supabase.co/functions/v1/notify';
+  async function notificarAgendamento(reuniao, meetLink) {
+    try {
+      await fetch(NOTIFY_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tipo: 'agendamento',
+          titulo: reuniao.titulo,
+          cliente: reuniao.cliente,
+          data: reuniao.data,
+          duracao: reuniao.duracao || 45,
+          email_cliente: reuniao.email || '',
+          whats_cliente: reuniao.whats || '',
+          meet_link: meetLink
+        })
+      });
+    } catch (e) { console.warn('[notify]', e); }
   }
 
   function painelCalendario(p, meetLink) {
