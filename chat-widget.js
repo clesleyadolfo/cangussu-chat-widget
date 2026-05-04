@@ -302,7 +302,73 @@
     return '';
   }
 
+  // ============= ZapSign Integration =============
+  const SIGN_ENDPOINT = 'https://kxvtftxjwnosqvbqxudd.supabase.co/functions/v1/sign';
+  let html2pdfLoaded = null;
+
+  function loadHtml2Pdf() {
+    if (html2pdfLoaded) return html2pdfLoaded;
+    html2pdfLoaded = new Promise((resolve, reject) => {
+      if (window.html2pdf) return resolve(window.html2pdf);
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+      s.onload = () => resolve(window.html2pdf);
+      s.onerror = () => reject(new Error('Falha ao carregar html2pdf'));
+      document.head.appendChild(s);
+    });
+    return html2pdfLoaded;
+  }
+
+  async function htmlParaBase64Pdf(html) {
+    const html2pdf = await loadHtml2Pdf();
+    // cria container fora da tela
+    const container = document.createElement('div');
+    container.innerHTML = html;
+    container.style.cssText = 'position:absolute;left:-9999px;top:0;width:210mm;background:#fff;color:#000';
+    document.body.appendChild(container);
+    try {
+      const blob = await html2pdf()
+        .from(container)
+        .set({
+          margin: [10, 10, 10, 10],
+          filename: 'doc.pdf',
+          image: { type: 'jpeg', quality: 0.95 },
+          html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        })
+        .output('blob');
+      // converte blob → base64
+      return await new Promise((resolve, reject) => {
+        const r = new FileReader();
+        r.onloadend = () => {
+          const b64 = String(r.result).split(',')[1];
+          resolve(b64);
+        };
+        r.onerror = reject;
+        r.readAsDataURL(blob);
+      });
+    } finally {
+      container.remove();
+    }
+  }
+
+  // Cria documento na ZapSign e devolve sign_url
+  async function criarAssinaturaZapSign(tipo, dados) {
+    const html = gerarDocHTML(tipo, dados);
+    const base64_pdf = await htmlParaBase64Pdf(html);
+    const dadosComPdf = { ...dados, base64_pdf };
+    const res = await fetch(SIGN_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tipo, dados: dadosComPdf })
+    });
+    const data = await res.json();
+    if (!res.ok || data.error) throw new Error(data.error || 'Erro ZapSign');
+    return data;
+  }
+
   function abrirDoc(tipo, dados) {
+    // Apenas pré-visualização do HTML antes de assinar
     const html = gerarDocHTML(tipo, dados);
     const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
     const url = URL.createObjectURL(blob);
@@ -314,15 +380,53 @@
       { tipo: 'contrato', label: '📄 Contrato de Honorários' },
       { tipo: 'procuracao', label: '📋 Procuração Ad Judicia' },
       { tipo: 'hipossuficiencia', label: '📜 Declaração de Hipossuficiência' },
-      { tipo: 'declaracao_ir', label: '📑 Declaração Isenção IR' }
+      { tipo: 'declaracao_ir', label: '📑 Declaração de Isenção IR' }
     ];
     const panel = el('div', { class: 'cgw-docs' });
-    panel.innerHTML = '<h4>📂 Documentos Gerados</h4>';
+    panel.innerHTML = '<h4>📂 Documentos para Assinatura Digital</h4><div style="font-size:11px;color:var(--muted);margin-bottom:8px">Clique em "✍️ Assinar" para gerar o link e assinar online (ZapSign).</div>';
+
     docs.forEach(d => {
-      const btn = el('button', null, d.label + ' <span style="margin-left:auto;color:#9d6bff">Abrir ↗</span>');
-      btn.style.justifyContent = 'space-between';
-      btn.addEventListener('click', () => abrirDoc(d.tipo, dados));
-      panel.appendChild(btn);
+      const wrap = document.createElement('div');
+      wrap.style.cssText = 'display:flex;gap:6px;margin:4px 0';
+
+      const previewBtn = document.createElement('button');
+      previewBtn.style.cssText = 'flex:1;padding:8px 10px;background:#0f0f17;border:1px solid #2a2142;border-radius:8px;color:#ece8f5;font-size:12px;cursor:pointer;text-align:left;font-family:inherit;display:flex;align-items:center;justify-content:space-between';
+      previewBtn.innerHTML = d.label + ' <span style="color:#8a84a0;font-size:11px">👁 Pré-visualizar</span>';
+      previewBtn.addEventListener('click', () => abrirDoc(d.tipo, dados));
+
+      const signBtn = document.createElement('button');
+      signBtn.style.cssText = 'padding:8px 12px;background:linear-gradient(135deg,#37d39b,#2db588);border:none;border-radius:8px;color:#0a3d2c;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap';
+      signBtn.textContent = '✍️ Assinar';
+      signBtn.addEventListener('click', async () => {
+        signBtn.disabled = true;
+        signBtn.textContent = '⏳ Gerando...';
+        try {
+          const result = await criarAssinaturaZapSign(d.tipo, dados);
+          if (result.sign_url) {
+            window.open(result.sign_url, '_blank');
+            signBtn.style.background = '#1a1528';
+            signBtn.style.color = '#ece8f5';
+            signBtn.textContent = '✓ Link gerado';
+            // Adiciona link visível
+            const linkInfo = document.createElement('div');
+            linkInfo.style.cssText = 'font-size:10px;color:#8a84a0;margin-top:4px;word-break:break-all';
+            linkInfo.innerHTML = '🔗 <a href="' + result.sign_url + '" target="_blank" style="color:#9d6bff">Abrir link de assinatura</a>';
+            wrap.appendChild(linkInfo);
+          } else {
+            throw new Error('Sem sign_url na resposta');
+          }
+        } catch (e) {
+          console.error('[zapsign]', e);
+          signBtn.textContent = '⚠️ Erro';
+          signBtn.style.background = '#ff5a6a';
+          signBtn.title = e.message;
+          setTimeout(() => { signBtn.disabled = false; signBtn.textContent = '✍️ Tentar novamente'; signBtn.style.background = ''; }, 3000);
+        }
+      });
+
+      wrap.appendChild(previewBtn);
+      wrap.appendChild(signBtn);
+      panel.appendChild(wrap);
     });
     chat.appendChild(panel);
     chat.scrollTop = chat.scrollHeight;
