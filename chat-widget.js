@@ -160,11 +160,21 @@
     .cgw-bubble-msg.user{align-self:flex-end;background:linear-gradient(135deg,#9d6bff,#6b3fc9);color:#fff;border-radius:12px 12px 2px 12px}
     .cgw-bubble-msg.bot{align-self:flex-start;background:#1a1528;border:1px solid #2a2142;border-radius:12px 12px 12px 2px}
     .cgw-bubble-msg.typing{font-style:italic;color:#8a84a0;font-size:11px;padding:8px 14px}
-    .cgw-input-row{padding:12px;border-top:1px solid #2a2142;background:#0d0a17;display:flex;gap:8px}
+    .cgw-input-row{padding:10px;border-top:1px solid #2a2142;background:#0d0a17;display:flex;gap:6px;align-items:center}
     .cgw-input{flex:1;padding:10px 12px;background:#0f0f17;border:1px solid #2a2142;border-radius:10px;color:#ece8f5;font-size:13px;outline:none;font-family:inherit}
     .cgw-input:focus{border-color:#9d6bff}
-    .cgw-send{padding:10px 16px;background:linear-gradient(135deg,#9d6bff,#b88bff);border:none;border-radius:10px;color:#1a1005;font-weight:600;font-size:13px;cursor:pointer}
+    .cgw-icon-btn{width:38px;height:38px;border-radius:10px;background:#0f0f17;border:1px solid #2a2142;color:#ece8f5;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.15s;padding:0}
+    .cgw-icon-btn:hover{border-color:#9d6bff;color:#9d6bff}
+    .cgw-icon-btn.recording{background:#ff5a6a;color:#fff;border-color:#ff5a6a;animation:cgwPulse 1s infinite}
+    @keyframes cgwPulse{0%,100%{opacity:1}50%{opacity:.6}}
+    .cgw-send{padding:10px 14px;background:linear-gradient(135deg,#9d6bff,#b88bff);border:none;border-radius:10px;color:#1a1005;font-weight:600;font-size:13px;cursor:pointer;flex-shrink:0}
     .cgw-send:disabled{opacity:.5;cursor:not-allowed}
+    .cgw-img-bubble{align-self:flex-end;max-width:200px;padding:4px;background:#1a1528;border-radius:10px;cursor:pointer}
+    .cgw-img-bubble img{width:100%;border-radius:8px;display:block}
+    .cgw-cal-buttons{align-self:flex-start;width:95%;padding:10px;background:#1a1528;border:1px solid #2a2142;border-radius:10px;margin:4px 0}
+    .cgw-cal-buttons h5{margin:0 0 8px;color:#b88bff;font-size:12px;font-weight:600}
+    .cgw-cal-buttons a{display:flex;align-items:center;gap:8px;padding:8px 10px;margin:3px 0;background:#0f0f17;border:1px solid #2a2142;border-radius:8px;color:#ece8f5;font-size:12px;text-decoration:none}
+    .cgw-cal-buttons a:hover{border-color:#9d6bff}
     .cgw-docs{align-self:flex-start;width:95%;padding:12px;background:linear-gradient(135deg,#1a1528,#241935);border:1px solid #9d6bff;border-radius:12px}
     .cgw-docs h4{margin:0 0 8px;color:#b88bff;font-size:13px}
     .cgw-docs button{display:flex;align-items:center;gap:8px;width:100%;padding:8px 10px;margin:3px 0;background:#0f0f17;border:1px solid #2a2142;border-radius:8px;color:#ece8f5;font-size:12px;cursor:pointer;text-align:left;font-family:inherit}
@@ -206,7 +216,10 @@
     '</div>' +
     '<div class="cgw-chat" id="cgw-chat"></div>' +
     '<div class="cgw-input-row">' +
-      '<input class="cgw-input" id="cgw-input" placeholder="Digite sua mensagem..." autocomplete="off"/>' +
+      '<button class="cgw-icon-btn" id="cgw-attach" title="Enviar foto/documento" aria-label="Anexar">📎</button>' +
+      '<button class="cgw-icon-btn" id="cgw-mic" title="Falar (segure para gravar)" aria-label="Microfone">🎤</button>' +
+      '<input type="file" id="cgw-file" accept="image/*,application/pdf" style="display:none" capture="environment"/>' +
+      '<input class="cgw-input" id="cgw-input" placeholder="Digite ou fale..." autocomplete="off"/>' +
       '<button class="cgw-send" id="cgw-send">Enviar</button>' +
     '</div>' +
     '<div class="cgw-foot">🔒 Conversa protegida — <a href="https://www.oabsp.org.br" target="_blank" rel="noopener">OAB/SP 37.884</a></div>';
@@ -218,6 +231,9 @@
   const input = win.querySelector('#cgw-input');
   const sendBtn = win.querySelector('#cgw-send');
   const closeBtn = win.querySelector('.cgw-close');
+  const attachBtn = win.querySelector('#cgw-attach');
+  const micBtn = win.querySelector('#cgw-mic');
+  const fileInp = win.querySelector('#cgw-file');
 
   let history = [];
   let isOpen = false;
@@ -442,6 +458,7 @@
     for (const m of dadosMatches) {
       try {
         const dados = JSON.parse(m[1]);
+        window.clienteAtualWidget = dados; // usado por upload (nome da pasta)
         // Salva no Supabase via REST
         salvarCliente(dados);
         // Renderiza painel após split
@@ -463,14 +480,105 @@
         const meetLink = 'https://meet.jit.si/CangussuAdvocacia-' + slug + '-' + Date.now();
         const when = new Date(p.data).toLocaleString('pt-BR', { dateStyle: 'full', timeStyle: 'short' });
         salvarReuniao(p, meetLink);
-        const conf = '\n\n━━━━━━━━━━━━━━━━━━━━━━━━\n✅ REUNIÃO AGENDADA\n━━━━━━━━━━━━━━━━━━━━━━━━\n📌 ' + (p.titulo || 'Reunião') + '\n📅 ' + when + '\n⏱ ' + (p.duracao || 45) + ' minutos\n🎥 ' + meetLink + '\n━━━━━━━━━━━━━━━━━━━━━━━━';
+        const conf = '\n\n✅ REUNIÃO AGENDADA\n📌 ' + (p.titulo || 'Reunião') + '\n📅 ' + when + '\n⏱ ' + (p.duracao || 45) + ' minutos\n🎥 ' + meetLink;
         out = out.replace(m[0], conf);
+        // Renderiza painel com botões de calendário após split
+        setTimeout(() => painelCalendario(p, meetLink), 1500);
       } catch (e) {
         console.error('[cgw] AGENDAR parse error:', e);
       }
     }
 
     return out;
+  }
+
+  // ============= 📅 Botões de calendário (Google/Outlook/.ics) =============
+  function gerarLinksCalendario(p, meetLink) {
+    const start = new Date(p.data);
+    const end = new Date(start.getTime() + (p.duracao || 45) * 60 * 1000);
+    const fmt = (d) => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+    const titulo = p.titulo || 'Reunião — Cangussu Advocacia';
+    const detalhes = 'Reunião virtual com Dr. Adolfo (OAB/SP 37.884).\n\nLink da sala: ' + meetLink + '\n\nEm caso de dúvida, responda este e-mail ou nos chame no WhatsApp.';
+    const local = meetLink;
+
+    // Google Calendar
+    const gcal = 'https://calendar.google.com/calendar/render?action=TEMPLATE'
+      + '&text=' + encodeURIComponent(titulo)
+      + '&dates=' + fmt(start) + '/' + fmt(end)
+      + '&details=' + encodeURIComponent(detalhes)
+      + '&location=' + encodeURIComponent(local)
+      + (p.email ? '&add=' + encodeURIComponent(p.email) : '');
+
+    // Outlook Live
+    const outlook = 'https://outlook.live.com/calendar/0/deeplink/compose'
+      + '?path=/calendar/action/compose&rru=addevent'
+      + '&subject=' + encodeURIComponent(titulo)
+      + '&startdt=' + start.toISOString()
+      + '&enddt=' + end.toISOString()
+      + '&body=' + encodeURIComponent(detalhes)
+      + '&location=' + encodeURIComponent(local);
+
+    // .ics file
+    const ics = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//Cangussu Advocacia//Reuniao//PT',
+      'CALSCALE:GREGORIAN',
+      'METHOD:PUBLISH',
+      'BEGIN:VEVENT',
+      'UID:' + Date.now() + '@cangussuadvocacia.com',
+      'DTSTAMP:' + fmt(new Date()),
+      'DTSTART:' + fmt(start),
+      'DTEND:' + fmt(end),
+      'SUMMARY:' + titulo,
+      'DESCRIPTION:' + detalhes.replace(/\n/g, '\\n'),
+      'LOCATION:' + local,
+      'URL:' + meetLink,
+      p.email ? 'ATTENDEE;CN=' + (p.cliente || 'Cliente') + ';RSVP=TRUE:mailto:' + p.email : '',
+      'ORGANIZER;CN=Dr. Adolfo:mailto:contato@cangussuadvocacia.com',
+      'STATUS:CONFIRMED',
+      'BEGIN:VALARM',
+      'TRIGGER:-PT30M',
+      'ACTION:DISPLAY',
+      'DESCRIPTION:Reunião em 30 minutos',
+      'END:VALARM',
+      'END:VEVENT',
+      'END:VCALENDAR'
+    ].filter(Boolean).join('\r\n');
+    const icsBlob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+    const icsUrl = URL.createObjectURL(icsBlob);
+
+    return { gcal, outlook, icsUrl, meetLink };
+  }
+
+  function painelCalendario(p, meetLink) {
+    const links = gerarLinksCalendario(p, meetLink);
+    const panel = document.createElement('div');
+    panel.className = 'cgw-cal-buttons';
+    panel.innerHTML = '<h5>📅 Adicione à sua agenda</h5>';
+
+    const opcoes = [
+      { url: links.gcal, label: '📅 Google Calendar', target: '_blank' },
+      { url: links.outlook, label: '📅 Outlook', target: '_blank' },
+      { url: meetLink, label: '🎥 Entrar na reunião agora', target: '_blank' }
+    ];
+    opcoes.forEach(o => {
+      const a = document.createElement('a');
+      a.href = o.url;
+      a.target = o.target;
+      a.rel = 'noopener';
+      a.textContent = o.label;
+      panel.appendChild(a);
+    });
+    // Download .ics
+    const dl = document.createElement('a');
+    dl.href = links.icsUrl;
+    dl.download = 'reuniao-cangussu.ics';
+    dl.textContent = '💾 Baixar lembrete (.ics — Apple Calendar/iCloud)';
+    panel.appendChild(dl);
+
+    chat.appendChild(panel);
+    chat.scrollTop = chat.scrollHeight;
   }
 
   // ============= Salvar no Supabase =============
@@ -651,6 +759,185 @@
   closeBtn.addEventListener('click', close);
   sendBtn.addEventListener('click', () => { const t = input.value; input.value = ''; send(t); });
   input.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); const t = input.value; input.value = ''; send(t); } });
+
+  // ============= 📎 UPLOAD DE FOTOS/DOCUMENTOS =============
+  attachBtn.addEventListener('click', () => fileInp.click());
+
+  fileInp.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    fileInp.value = ''; // permite re-selecionar mesmo arquivo
+    if (file.size > 10 * 1024 * 1024) {
+      addBubble('⚠️ Arquivo muito grande (máx 10 MB).', 'bot');
+      return;
+    }
+    await uploadArquivo(file);
+  });
+
+  async function uploadArquivo(file) {
+    // Bolha "enviando..."
+    const previewUrl = URL.createObjectURL(file);
+    const wrap = document.createElement('div');
+    wrap.className = 'cgw-img-bubble';
+    if (file.type.startsWith('image/')) {
+      const img = document.createElement('img');
+      img.src = previewUrl;
+      wrap.appendChild(img);
+    } else {
+      wrap.textContent = '📄 ' + file.name;
+      wrap.style.cssText += 'padding:12px;color:#ece8f5;font-size:12px';
+    }
+    chat.appendChild(wrap);
+    chat.scrollTop = chat.scrollHeight;
+
+    const status = document.createElement('div');
+    status.className = 'cgw-bubble-msg bot typing';
+    status.textContent = '⏳ Enviando arquivo...';
+    chat.appendChild(status);
+
+    try {
+      // Upload pro Supabase Storage
+      const ext = file.name.split('.').pop().toLowerCase();
+      const safeName = (file.name || 'arquivo').replace(/[^a-zA-Z0-9.-]/g, '_').slice(0, 60);
+      const cliente = (window.clienteAtualWidget?.nome || 'anonimo').toLowerCase().replace(/[^a-z0-9]/g, '-').slice(0, 30);
+      const path = cliente + '/' + Date.now() + '-' + safeName;
+
+      const upRes = await fetch(
+        SB_URL + '/storage/v1/object/documentos-clientes/' + path,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer ' + SB_ANON,
+            'apikey': SB_ANON,
+            'Content-Type': file.type || 'application/octet-stream',
+            'x-upsert': 'true'
+          },
+          body: file
+        }
+      );
+
+      if (!upRes.ok) {
+        const txt = await upRes.text();
+        throw new Error(txt || 'falha no upload');
+      }
+
+      const publicUrl = SB_URL + '/storage/v1/object/public/documentos-clientes/' + path;
+      status.textContent = '✓ Arquivo enviado';
+      setTimeout(() => status.remove(), 2500);
+
+      // Salva referência no Supabase (tabela documentos)
+      try {
+        await fetch(SB_URL + '/rest/v1/documentos', {
+          method: 'POST',
+          headers: {
+            'apikey': SB_ANON, 'Authorization': 'Bearer ' + SB_ANON,
+            'Content-Type': 'application/json', 'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify({
+            tipo: 'enviado_cliente',
+            nome_arquivo: file.name,
+            url: publicUrl,
+            status: 'recebido',
+            observacoes: 'Enviado pelo cliente via chat'
+          })
+        });
+      } catch (_) {}
+
+      // Avisa a IA que o cliente enviou um arquivo
+      const fileMsg = '[Cliente enviou arquivo: ' + file.name + ' — ' + publicUrl + ']';
+      history.push({ role: 'user', content: fileMsg });
+      // Solicita resposta da IA
+      sendBtn.disabled = true;
+      await new Promise(r => setTimeout(r, 1500));
+      const typing = addTyping();
+      try {
+        const aiRes = await fetch(ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ messages: history.slice(-30), system: SYSTEM_PROMPT })
+        });
+        const aiData = await aiRes.json();
+        typing.remove();
+        if (aiData.reply) {
+          history.push({ role: 'assistant', content: aiData.reply });
+          await addSplitBubbles(processMarkers(aiData.reply));
+        }
+      } catch (e) {
+        typing.remove();
+      }
+      sendBtn.disabled = false;
+    } catch (e) {
+      console.error('[upload]', e);
+      status.textContent = '⚠️ Erro ao enviar: ' + e.message;
+    }
+  }
+
+  // ============= 🎤 CAPTURA DE VOZ (Web Speech API) =============
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  let recognition = null;
+  let isRecording = false;
+
+  function setupRecognition() {
+    if (!SR) return null;
+    const r = new SR();
+    r.lang = 'pt-BR';
+    r.continuous = false;
+    r.interimResults = true;
+    r.maxAlternatives = 1;
+    return r;
+  }
+
+  if (!SR) {
+    micBtn.title = 'Seu navegador não suporta reconhecimento de voz. Use Chrome ou Edge.';
+    micBtn.style.opacity = '0.5';
+  }
+
+  micBtn.addEventListener('click', () => {
+    if (!SR) {
+      addBubble('⚠️ Seu navegador não suporta reconhecimento de voz. Use Chrome, Edge ou Safari.', 'bot');
+      return;
+    }
+    if (isRecording) {
+      try { recognition?.stop(); } catch (_) {}
+      return;
+    }
+    recognition = setupRecognition();
+    if (!recognition) return;
+
+    let finalText = '';
+    recognition.onstart = () => {
+      isRecording = true;
+      micBtn.classList.add('recording');
+      micBtn.textContent = '⏹';
+      input.placeholder = '🎤 Falando... clique para parar';
+    };
+    recognition.onresult = (e) => {
+      let interim = '';
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        const txt = e.results[i][0].transcript;
+        if (e.results[i].isFinal) finalText += txt;
+        else interim += txt;
+      }
+      input.value = (finalText + interim).trim();
+    };
+    recognition.onerror = (e) => {
+      console.error('[voice]', e.error);
+      if (e.error === 'not-allowed') {
+        addBubble('⚠️ Permissão de microfone negada. Permita o uso do microfone nas configurações do site.', 'bot');
+      } else if (e.error === 'no-speech') {
+        addBubble('🤫 Não detectei sua voz. Tenta de novo!', 'bot');
+      }
+    };
+    recognition.onend = () => {
+      isRecording = false;
+      micBtn.classList.remove('recording');
+      micBtn.textContent = '🎤';
+      input.placeholder = 'Digite ou fale...';
+      input.focus();
+    };
+    try { recognition.start(); }
+    catch (e) { console.error('[voice start]', e); }
+  });
 
   // ============= Trigger externo (botão da landing) =============
   const script = document.currentScript || document.querySelector('script[src*="chat-widget"]');
